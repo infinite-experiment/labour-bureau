@@ -1,16 +1,17 @@
 services:
-  app:
+  politburo:
     build:
-      context: .
+      context: ../politburo
       dockerfile: Dockerfile
       target: dev
     working_dir: /app/cmd/server
+    container_name: politburo
     volumes:
-      - .:/app
+      - ../politburo:/app
     ports:
       - "8080:8080"
-    env_file:
-      - .env.local
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
     command: air
     depends_on:
       - db
@@ -38,6 +39,38 @@ services:
     depends_on:
       - db
 
+  comrade-bot:
+    build:
+      context: ../comrade-bot
+      dockerfile: Dockerfile
+      target: dev
+    container_name: comrade-bot
+    volumes:
+      - ../comrade-bot/src:/app/src
+      - ../comrade-bot/tsconfig.json:/app/tsconfig.json
+      - ../comrade-bot/package.json:/app/package.json
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - API_URL=http://politburo:8080
+    depends_on:
+      - politburo
+
+  vizburo:
+    build:
+      context: ../vizburo
+      dockerfile: Dockerfile
+      target: dev   # Use 'production' for prod builds
+    container_name: vizburo
+    volumes:
+      - ../vizburo/src:/app/src
+      - ../vizburo/package.json:/app/package.json
+      - ../vizburo/tsconfig.json:/app/tsconfig.json
+    ports:
+      - "3000:3000"
+    environment:
+      - API_URL=http://politburo:8080
+    depends_on:
+      - politburo
 
 volumes:
   pgdata-dev:
