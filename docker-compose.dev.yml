@@ -4,7 +4,7 @@ services:
       context: ../politburo
       dockerfile: Dockerfile
       target: dev
-    working_dir: /app/cmd/server
+    working_dir: /app      # <--- root, not /app/cmd/server
     container_name: politburo
     volumes:
       - ../politburo:/app
@@ -12,6 +12,14 @@ services:
       - "8080:8080"
     environment:
       - DATABASE_URL=${DATABASE_URL}
+      - APP_ENV=local
+      - DEBUG=true
+      - PORT=8080
+      - PG_HOST=db
+      - PG_PORT=5432
+      - PG_USER=ieuser
+      - PG_DB=infinite
+      - PG_PASSWORD=iepass
     command: air
     depends_on:
       - db
@@ -50,10 +58,10 @@ services:
       - ../comrade-bot/tsconfig.json:/app/tsconfig.json
       - ../comrade-bot/package.json:/app/package.json
     environment:
-      - BOT_TOKEN=${BOT_TOKEN}
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      - DISCORD_BOT_CLIENT_ID=${DISCORD_BOT_CLIENT_ID}
       - API_URL=http://politburo:8080
-    depends_on:
-      - politburo
+      - GUILD_ID=988020008665882624
 
   vizburo:
     build:
