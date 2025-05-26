@@ -8,6 +8,7 @@ services:
     container_name: politburo
     volumes:
       - ../politburo:/app
+      - politburo_air_tmp:/app/.air_tmp
     ports:
       - "8080:8080"
     environment:
@@ -20,10 +21,12 @@ services:
       - PG_USER=ieuser
       - PG_DB=infinite
       - PG_PASSWORD=iepass
-    command: air
+    command: ["sh","-c","sleep 10 && air -c air.toml"]
+    #command: ["air", "-c", "air.toml", "-d"]
+    stdin_open: true
     depends_on:
       - db
-
+    
   db:
     image: postgres:15
     restart: always
@@ -67,18 +70,14 @@ services:
     build:
       context: ../vizburo
       dockerfile: Dockerfile
-      target: dev   # Use 'production' for prod builds
     container_name: vizburo
     volumes:
-      - ../vizburo/src:/app/src
-      - ../vizburo/package.json:/app/package.json
-      - ../vizburo/tsconfig.json:/app/tsconfig.json
+      - ../vizburo:/app
     ports:
-      - "3000:3000"
+      - "8081:80"
     environment:
       - API_URL=http://politburo:8080
-    depends_on:
-      - politburo
 
 volumes:
   pgdata-dev:
+  politburo_air_tmp:
