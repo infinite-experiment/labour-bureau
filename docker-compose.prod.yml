@@ -35,7 +35,7 @@ services:
       context: ../comrade-bot      # adjust path to your Node bot repo
       dockerfile: Dockerfile
     env_file:
-      - ../comrade-bot/.env        # if you have one
+      - .env        # if you have one
     restart: unless-stopped
 
   vizburo:
