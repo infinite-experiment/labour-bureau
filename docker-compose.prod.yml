@@ -1,23 +1,20 @@
 version: "3.9"
-
 services:
   api:
     build:
-      context: .
-      dockerfile: Dockerfile
-      target: prod
-    volumes:
-      - ./config:/app/config
+      context: ../politburo
+      dockerfile: Dockerfile         # politburo Dockerfile
     ports:
       - "8080:8080"
     env_file:
-      - .env.prod
+      - .env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    restart: unless-stopped
 
   db:
     image: postgres:15
-    restart: always
     environment:
       POSTGRES_DB: infinite
       POSTGRES_USER: ieuser
@@ -26,6 +23,30 @@ services:
       - pgdata-prod:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ieuser -d infinite"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  comrade-bot:
+    build:
+      context: ../comrade-bot      # adjust path to your Node bot repo
+      dockerfile: Dockerfile
+    env_file:
+      - ../comrade-bot/.env        # if you have one
+    restart: unless-stopped
+
+  vizburo:
+    build:
+      context: ../vizburo          # adjust path to your static site
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    restart: unless-stopped
 
 volumes:
   pgdata-prod:
+
+
