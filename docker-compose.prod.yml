@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  api:
+  politburo:
     build:
       context: ../politburo
       dockerfile: Dockerfile         # politburo Dockerfile
