@@ -1,0 +1,11 @@
+# politburo/Caddyfile
+
+comradebot.cc {
+  encode gzip
+
+  # proxy all “/” traffic to vizburo
+  reverse_proxy /* vizburo:80
+
+  # optionally, proxy your API:
+  # reverse_proxy /api/* politburo:8080
+}
