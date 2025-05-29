@@ -41,7 +41,20 @@ function show_help {
 
 function gen_api_key {
   echo "🔑 Generating API Key..."
-  docker compose -f "$DOCKER_COMPOSE_FILE" exec "$POLITBURO_CONTAINER_NAME" go run "$API_KEY_GEN_PATH"
+
+  # Load env vars into shell
+  set -o allexport
+  source .env
+  set +o allexport
+
+  # Run Go container using correct version, attached to same Docker Compose network
+  docker run --rm \
+    --network labour-bureau_default \
+    --env-file .env \
+    -v "$(pwd)/../politburo":/app \
+    -w /app \
+    golang:1.23.5 \
+    go run cmd/api_key_gen/main.go
 }
 
 function reset_db {
@@ -63,6 +76,21 @@ function migrate {
   docker compose -f "$DOCKER_COMPOSE_FILE" exec -T "$DB_CONTAINER_NAME" \
     psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "/migrations/$sql_path"
 }
+
+function redeploy_service {
+  local service="$1"
+
+  if [ -z "$service" ]; then
+    echo "❌ Please specify a service to redeploy (e.g., comrade-bot)"
+    exit 1
+  fi
+
+  echo "♻️ Redeploying $service..."
+  docker compose -f "$DOCKER_COMPOSE_FILE" stop "$service"
+  docker compose -f "$DOCKER_COMPOSE_FILE" rm -f "$service"
+  docker compose -f "$DOCKER_COMPOSE_FILE" up -d --build "$service"
+}
+
 
 function deploy_commands {
   echo "🚀 Deploying Discord bot commands..."
@@ -115,6 +143,10 @@ case "$1" in
   migration)
     migrate "$2"
     ;;
+  redeploy)
+    redeploy_service "$2"
+    ;;
+
   *)
     show_help
     ;;
