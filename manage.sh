@@ -45,15 +45,11 @@ function gen_api_key {
 }
 
 function reset_db {
-  if [ -z "$SQL_FILE" ]; then
-    echo "❌ Please provide path to SQL/migration scripts"
-    exit 1
-  fi
+\
 
   echo "💣 Dropping and migrating DB..."
   docker compose -f "$DOCKER_COMPOSE_FILE" exec -T "$DB_CONTAINER_NAME" psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
-  docker compose -f "$DOCKER_COMPOSE_FILE" exec -T "$DB_CONTAINER_NAME" \
-    psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "/migrations/$"
+  
 }
 
 function migrate {
@@ -65,7 +61,7 @@ function migrate {
 
   echo "Running migration..."
   docker compose -f "$DOCKER_COMPOSE_FILE" exec -T "$DB_CONTAINER_NAME" \
-    psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "/migrations/$SQL_FILE"
+    psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "/migrations/$sql_path"
 }
 
 function deploy_commands {
