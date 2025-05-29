@@ -1,12 +1,12 @@
 comradebot.cc {
   encode gzip
 
+  reverse_proxy /public/* politburo:8080
   # Proxy all frontend traffic to vizburo
   reverse_proxy /* vizburo:80
 
   # Proxy API calls to backend (e.g., anything under /api or /public)
   # reverse_proxy /api/* politburo:8080
-  reverse_proxy /public/* politburo:8080/public
 
   # Optional: static file fallback
   file_server
