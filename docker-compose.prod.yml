@@ -8,9 +8,6 @@ services:
       - "8080:8080"
     env_file:
       - .env
-    volumes:
-      - ../politburo/internal/db/migrations:/migrations
-
     depends_on:
       db:
         condition: service_healthy
@@ -24,6 +21,8 @@ services:
       POSTGRES_PASSWORD: iepass
     volumes:
       - pgdata-prod:/var/lib/postgresql/data
+      - ../politburo/internal/db/migrations:/migrations
+
     ports:
       - "5432:5432"
     healthcheck:
