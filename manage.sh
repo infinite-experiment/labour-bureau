@@ -57,7 +57,7 @@ function reset_db {
 }
 
 function migrate {
-  local sql_path="$2"
+  local sql_path="$1"
   if [ -z "$sql_path" ]; then
     echo "❌ Please provide path to SQL/migration scripts"
     exit 1
