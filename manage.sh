@@ -18,6 +18,7 @@ BOT_CONTAINER_NAME="comrade-bot"
 DOCKER_COMPOSE_FILE="docker-compose.prod.yml"
 API_KEY_GEN_PATH="../politburo/cmd/api_key_gen/main.go"
 MIGRATION_SCRIPT_PATH="../politburo/internal/db/migrations"
+SQL_FILE="$1"
 # ==========================================
 
 # ====== Usage Help ======
@@ -40,19 +41,19 @@ function show_help {
 
 function gen_api_key {
   echo "🔑 Generating API Key..."
-  (cd ../politburo && go run "$API_KEY_GEN_PATH")
+  docker compose -f "$DOCKER_COMPOSE_FILE" exec "$POLITBURO_CONTAINER_NAME" go run "$API_KEY_GEN_PATH"
 }
 
 function reset_db {
-  local sql_path="$1"
-  if [ -z "$sql_path" ]; then
+  if [ -z "$SQL_FILE" ]; then
     echo "❌ Please provide path to SQL/migration scripts"
     exit 1
   fi
 
   echo "💣 Dropping and migrating DB..."
-  docker exec -i "$DB_CONTAINER_NAME" psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
-  docker exec -i "$DB_CONTAINER_NAME" psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "$sql_path"
+  docker compose -f "$DOCKER_COMPOSE_FILE" exec -T "$DB_CONTAINER_NAME" psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+  docker compose -f "$DOCKER_COMPOSE_FILE" exec -T "$DB_CONTAINER_NAME" \
+    psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "/migrations/$"
 }
 
 function migrate {
@@ -63,7 +64,8 @@ function migrate {
   fi
 
   echo "Running migration..."
-  docker exec -i "$DB_CONTAINER_NAME" psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "$sql_path"
+  docker compose -f "$DOCKER_COMPOSE_FILE" exec -T "$DB_CONTAINER_NAME" \
+    psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "/migrations/$SQL_FILE"
 }
 
 function deploy_commands {
