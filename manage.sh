@@ -28,7 +28,7 @@ function show_help {
   echo "Commands:"
   echo "  gen-api-key                     Generate API key"
   echo "  reset-db <sql_path>            Drop & run migrations from given path"
-  echo "  reset-db <sql_path>            Drop & run migrations from given path"
+  echo "  migration <sql_path>           Run migrations from given path"
   echo "  deploy-commands                Deploy Discord bot commands"
   echo "  down <service|all>             Stop container(s)"
   echo "  up                             Start containers and show logs"
