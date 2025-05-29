@@ -1,4 +1,4 @@
-
+docker rm -f caddy
 
 docker run -d \
   --name caddy \

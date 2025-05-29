@@ -7,5 +7,5 @@ comradebot.cc {
   reverse_proxy /* vizburo:80
 
   # optionally, proxy your API:
-  # reverse_proxy /api/* politburo:8080
+  # reverse_proxy /data/* politburo:8080/public
 }
