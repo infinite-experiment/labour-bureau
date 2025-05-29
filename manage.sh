@@ -18,7 +18,7 @@ BOT_CONTAINER_NAME="comrade-bot"
 DOCKER_COMPOSE_FILE="docker-compose.prod.yml"
 API_KEY_GEN_PATH="../politburo/cmd/api_key_gen/main.go"
 MIGRATION_SCRIPT_PATH="../politburo/internal/db/migrations"
-SQL_FILE="$1"
+SQL_FILE="$2"
 # ==========================================
 
 # ====== Usage Help ======
@@ -57,7 +57,7 @@ function reset_db {
 }
 
 function migrate {
-  local sql_path="$1"
+  local sql_path="$2"
   if [ -z "$sql_path" ]; then
     echo "❌ Please provide path to SQL/migration scripts"
     exit 1
