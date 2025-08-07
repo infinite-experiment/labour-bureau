@@ -45,7 +45,7 @@ services:
       context: ../vizburo          # adjust path to your static site
       dockerfile: Dockerfile
     expose:
-      - "80"
+      - "80:80"
     restart: unless-stopped
 
 volumes:
