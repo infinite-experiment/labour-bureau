@@ -11,6 +11,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - internal
     restart: unless-stopped
 
   db:
@@ -22,15 +26,29 @@ services:
     volumes:
       - pgdata-prod:/var/lib/postgresql/data
       - ../politburo/internal/db/migrations:/migrations
-
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ieuser -d infinite"]
       interval: 30s
       timeout: 5s
       retries: 5
+    networks:
+      - internal
     restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis-prod
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-change-me}
+    volumes:
+      - redis-prod:/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   comrade-bot:
     build:
@@ -38,6 +56,8 @@ services:
       dockerfile: Dockerfile
     env_file:
       - .env        # if you have one
+    networks:
+      - internal
     restart: unless-stopped
 
   vizburo:
@@ -46,9 +66,16 @@ services:
       dockerfile: Dockerfile
     ports:
       - "80:80"
+    networks:
+      - internal
     restart: unless-stopped
 
 volumes:
   pgdata-prod:
+  redis-prod:
+
+networks:
+  internal:
+    driver: bridge
 
 
