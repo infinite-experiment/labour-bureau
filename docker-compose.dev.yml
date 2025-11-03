@@ -71,15 +71,64 @@ services:
   vizburo:
     build:
       context: ../politburo
-      dockerfile: Dockerfile.dev
-      target: dev
+      dockerfile: Dockerfile.vizburo.dev
     container_name: vizburo
     working_dir: /app
     volumes:
       - ../politburo:/app
-    command: ["sh","-c","cd /app && npm install && npm run watch:tailwind"]
     stdin_open: true
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.dev.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-storage:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'
+    depends_on:
+      - politburo
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    restart: always
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki.dev.yml:/etc/loki/local-config.yml:ro
+      - loki-storage:/loki
+    command: -config.file=/etc/loki/local-config.yml
+    depends_on:
+      - politburo
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_USER: admin
+      GF_INSTALL_PLUGINS: grafana-worldmap-panel
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+    depends_on:
+      - prometheus
+      - loki
+
 volumes:
   pgdata-dev:
   politburo_air_tmp:
   redis-data:
+  prometheus-storage:
+  loki-storage:
+  grafana-storage:
