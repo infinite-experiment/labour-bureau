@@ -60,16 +60,6 @@ services:
       - internal
     restart: unless-stopped
 
-  vizburo:
-    build:
-      context: ../vizburo          # adjust path to your static site
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    networks:
-      - internal
-    restart: unless-stopped
-
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus

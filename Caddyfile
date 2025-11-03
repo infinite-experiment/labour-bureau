@@ -1,13 +1,76 @@
 comradebot.cc {
+  # Enable automatic HTTPS (Let's Encrypt)
   encode gzip
 
-  reverse_proxy /public/* politburo:8080
-  # Proxy all frontend traffic to vizburo
-  reverse_proxy /* vizburo:80
+  # Security headers
+  header / {
+    # Prevent clickjacking
+    X-Frame-Options "SAMEORIGIN"
+    # Disable content-type sniffing
+    X-Content-Type-Options "nosniff"
+    # Enable XSS protection
+    X-XSS-Protection "1; mode=block"
+    # Referrer policy
+    Referrer-Policy "strict-origin-when-cross-origin"
+    # Prevent browsers from opening unsafe file types
+    X-Download-Options "noopen"
+    # Restrict permissions
+    Permissions-Policy "geolocation=(), microphone=(), camera=()"
+  }
 
-  # Proxy API calls to backend (e.g., anything under /api or /public)
-  # reverse_proxy /api/* politburo:8080
+  # Proxy public API endpoints to backend
+  reverse_proxy /public/* politburo:8080 {
+    header_up Host {http.request.header.Host}
+    header_up X-Real-IP {http.request.remote.host}
+    header_up X-Forwarded-For {http.request.remote.host}
+    header_up X-Forwarded-Proto {http.request.scheme}
+  }
 
-  # Optional: static file fallback
-  file_server
+  # Proxy API endpoints to backend
+  reverse_proxy /api/* politburo:8080 {
+    header_up Host {http.request.header.Host}
+    header_up X-Real-IP {http.request.remote.host}
+    header_up X-Forwarded-For {http.request.remote.host}
+    header_up X-Forwarded-Proto {http.request.scheme}
+  }
+
+  # Proxy authentication routes to backend
+  reverse_proxy /auth/* politburo:8080 {
+    header_up Host {http.request.header.Host}
+    header_up X-Real-IP {http.request.remote.host}
+    header_up X-Forwarded-For {http.request.remote.host}
+    header_up X-Forwarded-Proto {http.request.scheme}
+  }
+
+  # Proxy dashboard routes to backend
+  reverse_proxy /dashboard/* politburo:8080 {
+    header_up Host {http.request.header.Host}
+    header_up X-Real-IP {http.request.remote.host}
+    header_up X-Forwarded-For {http.request.remote.host}
+    header_up X-Forwarded-Proto {http.request.scheme}
+  }
+
+  # Proxy static files to backend
+  reverse_proxy /static/* politburo:8080 {
+    header_up Host {http.request.header.Host}
+    header_up X-Real-IP {http.request.remote.host}
+    header_up X-Forwarded-For {http.request.remote.host}
+    header_up X-Forwarded-Proto {http.request.scheme}
+  }
+
+  # Proxy UI API routes to backend
+  reverse_proxy /ui/api/* politburo:8080 {
+    header_up Host {http.request.header.Host}
+    header_up X-Real-IP {http.request.remote.host}
+    header_up X-Forwarded-For {http.request.remote.host}
+    header_up X-Forwarded-Proto {http.request.scheme}
+  }
+
+  # Proxy all remaining traffic to backend (root / and catch-all)
+  reverse_proxy /* politburo:8080 {
+    header_up Host {http.request.header.Host}
+    header_up X-Real-IP {http.request.remote.host}
+    header_up X-Forwarded-For {http.request.remote.host}
+    header_up X-Forwarded-Proto {http.request.scheme}
+  }
 }
