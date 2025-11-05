@@ -19,7 +19,10 @@
   "links": [],
   "panels": [
     {
-      "datasource": "Loki",
+      "datasource": {
+        "type": "loki",
+        "uid": "P8E80F9AEF21F6940"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -43,15 +46,18 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "{job=\"politburo\", level=\"ERROR\"}",
+          "expr": "{service=\"politburo\"}",
           "refId": "A"
         }
       ],
-      "title": "Error Logs",
+      "title": "Politburo Logs",
       "type": "logs"
     },
     {
-      "datasource": "Loki",
+      "datasource": {
+        "type": "loki",
+        "uid": "P8E80F9AEF21F6940"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -75,15 +81,18 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "{job=\"politburo\", level=\"WARN\"}",
+          "expr": "{service=\"comrade-bot\"}",
           "refId": "A"
         }
       ],
-      "title": "Warning Logs",
+      "title": "Comrade-Bot Logs",
       "type": "logs"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -168,7 +177,10 @@
       "type": "timeseries"
     },
     {
-      "datasource": "Loki",
+      "datasource": {
+        "type": "loki",
+        "uid": "P8E80F9AEF21F6940"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -192,11 +204,11 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "{job=\"politburo\"}",
+          "expr": "{}",
           "refId": "A"
         }
       ],
-      "title": "All Logs",
+      "title": "All Service Logs",
       "type": "logs"
     }
   ],

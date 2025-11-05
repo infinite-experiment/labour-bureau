@@ -74,3 +74,35 @@ comradebot.cc {
     header_up X-Forwarded-Proto {http.request.scheme}
   }
 }
+
+monitor.comradebot.cc {
+  # Enable automatic HTTPS (Let's Encrypt)
+  encode gzip
+
+  # Security headers
+  header / {
+    # Prevent clickjacking
+    X-Frame-Options "SAMEORIGIN"
+    # Disable content-type sniffing
+    X-Content-Type-Options "nosniff"
+    # Enable XSS protection
+    X-XSS-Protection "1; mode=block"
+    # Referrer policy
+    Referrer-Policy "strict-origin-when-cross-origin"
+    # Prevent browsers from opening unsafe file types
+    X-Download-Options "noopen"
+    # Restrict permissions
+    Permissions-Policy "geolocation=(), microphone=(), camera=()"
+  }
+
+  # Proxy all traffic to Grafana
+  reverse_proxy /* grafana:3000 {
+    header_up Host {http.request.header.Host}
+    header_up X-Real-IP {http.request.remote.host}
+    header_up X-Forwarded-For {http.request.remote.host}
+    header_up X-Forwarded-Proto {http.request.scheme}
+    # WebSocket support for Grafana live features
+    header_up Connection *
+    header_up Upgrade websocket
+  }
+}
