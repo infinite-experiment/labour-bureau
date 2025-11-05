@@ -23,8 +23,6 @@ services:
       POSTGRES_DB: infinite
       POSTGRES_USER: ieuser
       POSTGRES_PASSWORD: iepass
-    ports:
-      127.0.0.1:5432:5432
     volumes:
       - pgdata-prod:/var/lib/postgresql/data
       - ../politburo/internal/db/migrations:/migrations
